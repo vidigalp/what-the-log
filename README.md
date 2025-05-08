@@ -97,12 +97,12 @@ The schema for these format files is inspired by lnav and aims for compatibility
 {
     "<span class="math-inline">schema"\: "\[https\://lnav\.org/schemas/format\-v1\.schema\.json\]\(https\://lnav\.org/schemas/format\-v1\.schema\.json\)",
 "syslog\_log"\: \{
-"title"\: "Syslog",
-"description"\: "The system logger format found on most posix systems\.",
-"url"\: "\[http\://en\.wikipedia\.org/wiki/Syslog\]\(http\://en\.wikipedia\.org/wiki/Syslog\)",
-"regex"\: \{
-"std"\: \{
-"pattern"\: "^\(?<timestamp\>\(?\:\\\\S\{3,8\}\\\\s\+\\\\d\{1,2\} \\\\d\{2\}\:\\\\d\{2\}\:\\\\d\{2\}\|\\\\d\{4\}\-\\\\d\{2\}\-\\\\d\{2\}T\\\\d\{2\}\:\\\\d\{2\}\:\\\\d\{2\}\(?\:\\\\\.\\\\d\{3,6\}\)?\(?\:Z\|\(?\:\\\\\+\|\-\)\\\\d\{2\}\:\\\\d\{2\}\)\)\)\(?\: \(?<log\_hostname\>\[a\-zA\-Z0\-9\:\]\[^ \]\+\[a\-zA\-Z0\-9\]\)\)?\(?\: \\\\\[CLOUDINIT\\\\\]\)?\(?\:\(?\: syslogd \[\\\\d\\\\\.\]\+\|\(?\: \(?<log\_syslog\_tag\>\(?<log\_procname\>\(?\:\[^\\\\\[\:\]\+\|\[^ \:\]\+\)\)\(?\:\\\\\[\(?<log\_pid\>\\\\d\+\)\\\\\]\(?\: \\\\\(\[^\\\\\)\]\+\\\\\)\)?\)?\)\)\)\:\\\\s\*\(?<body\>\.\*\)</span>|:?(?:(?: ---)? last message repeated \\d+ times?(?: ---)?))"
+"title": "Syslog",
+"description": "The system logger format found on most posix systems\.",
+"url": "\[http\://en\.wikipedia\.org/wiki/Syslog\]\(http\://en\.wikipedia\.org/wiki/Syslog\)",
+"regex": {
+  "std": \{
+"pattern": "^\(?<timestamp\>\(?\:\\\\S\{3,8\}\\\\s\+\\\\d\{1,2\} \\\\d\{2\}\:\\\\d\{2\}\:\\\\d\{2\}\|\\\\d\{4\}\-\\\\d\{2\}\-\\\\d\{2\}T\\\\d\{2\}\:\\\\d\{2\}\:\\\\d\{2\}\(?\:\\\\\.\\\\d\{3,6\}\)?\(?\:Z\|\(?\:\\\\\+\|\-\)\\\\d\{2\}\:\\\\d\{2\}\)\)\)\(?\: \(?<log\_hostname\>\[a\-zA\-Z0\-9\:\]\[^ \]\+\[a\-zA\-Z0\-9\]\)\)?\(?\: \\\\\[CLOUDINIT\\\\\]\)?\(?\:\(?\: syslogd \[\\\\d\\\\\.\]\+\|\(?\: \(?<log\_syslog\_tag\>\(?<log\_procname\>\(?\:\[^\\\\\[\:\]\+\|\[^ \:\]\+\)\)\(?\:\\\\\[\(?<log\_pid\>\\\\d\+\)\\\\\]\(?\: \\\\\(\[^\\\\\)\]\+\\\\\)\)?\)?\)\)\)\:\\\\s\*\(?<body\>\.\*\)</span>|:?(?:(?: ---)? last message repeated \\d+ times?(?: ---)?))"
             }
         },
         "level-field": "body",
