@@ -1,4 +1,4 @@
-# WhatTheLog (WTL) 🪵 → 🇵🇫
+# WhatTheLog (WTL) 🪵 → <img src="https://www.apache.org/logos/originals/parquet.svg" alt="parquet" width="110">
 
 **WhatTheLog (WTL)** is a blazingly fast ETL (Extract, Transform, Load) tool, written in Rust, designed to convert log files from various formats into the efficient Apache Parquet format. If you've ever found yourself wrestling with mountains of text-based logs and wished for a more structured, queryable, and analytics-friendly format, WTL is here to help!
 
