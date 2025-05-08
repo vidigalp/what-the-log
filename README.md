@@ -95,14 +95,17 @@ The schema for these format files is inspired by lnav and aims for compatibility
 
 ```json
 {
-    "<span class="math-inline">schema"\: "\[https\://lnav\.org/schemas/format\-v1\.schema\.json\]\(https\://lnav\.org/schemas/format\-v1\.schema\.json\)",
-"syslog\_log": {
-"title": "Syslog",
-"description": "The system logger format found on most posix systems\.",
-"url": "[http\://en\.wikipedia\.org/wiki/Syslog\]\(http\://en\.wikipedia\.org/wiki/Syslog\)",
-"regex": {
-  "std": {
-"pattern": "^\(?<timestamp\>\(?\:\\\\S\{3,8\}\\\\s\+\\\\d\{1,2\} \\\\d\{2\}\:\\\\d\{2\}\:\\\\d\{2\}\|\\\\d\{4\}\-\\\\d\{2\}\-\\\\d\{2\}T\\\\d\{2\}\:\\\\d\{2\}\:\\\\d\{2\}\(?\:\\\\\.\\\\d\{3,6\}\)?\(?\:Z\|\(?\:\\\\\+\|\-\)\\\\d\{2\}\:\\\\d\{2\}\)\)\)\(?\: \(?<log\_hostname\>\[a\-zA\-Z0\-9\:\]\[^ \]\+\[a\-zA\-Z0\-9\]\)\)?\(?\: \\\\\[CLOUDINIT\\\\\]\)?\(?\:\(?\: syslogd \[\\\\d\\\\\.\]\+\|\(?\: \(?<log\_syslog\_tag\>\(?<log\_procname\>\(?\:\[^\\\\\[\:\]\+\|\[^ \:\]\+\)\)\(?\:\\\\\[\(?<log\_pid\>\\\\d\+\)\\\\\]\(?\: \\\\\(\[^\\\\\)\]\+\\\\\)\)?\)?\)\)\)\:\\\\s\*\(?<body\>\.\*\)</span>|:?(?:(?: ---)? last message repeated \\d+ times?(?: ---)?))"
+    "$schema": "https://lnav.org/schemas/format-v1.schema.json",
+    "syslog_log": {
+        "title": "Syslog",
+        "description": "The system logger format found on most posix systems.",
+        "url": "http://en.wikipedia.org/wiki/Syslog",
+        "regex": {
+            "std": {
+                "pattern": "^(?<timestamp>(?:\\S{3,8}\\s+\\d{1,2} \\d{2}:\\d{2}:\\d{2}|\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3,6})?(?:Z|(?:\\+|-)\\d{2}:\\d{2})))(?: (?<log_hostname>[a-zA-Z0-9:][^ ]+[a-zA-Z0-9]))?(?: \\[CLOUDINIT\\])?(?:(?: syslogd [\\d\\.]+|(?: (?<log_syslog_tag>(?<log_procname>(?:[^\\[:]+|[^ :]+))(?:\\[(?<log_pid>\\d+)\\](?: \\([^\\)]+\\))?)?))):\\s*(?<body>.*)$|:?(?:(?: ---)? last message repeated \\d+ times?(?: ---)?))"
+            },
+            "rfc5424": {
+                "pattern": "^<(?<log_pri>\\d+)>(?<syslog_version>\\d+) (?<timestamp>\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{6})?(?:[^ ]+)?) (?<log_hostname>[^ ]+|-) (?<log_syslog_tag>(?<log_procname>[^ ]+|-) (?<log_pid>[^ ]+|-) (?<log_msgid>[^ ]+|-)) (?<log_struct>\\[(?:[^\\]\"]|\"(?:\\.|[^\"])+\")*\\]|-|)\\s+(?<body>.*)"
             }
         },
         "level-field": "body",
@@ -110,18 +113,59 @@ The schema for these format files is inspired by lnav and aims for compatibility
             "error": "(?:(?:(?<![a-zA-Z]))(?:(?i)error(?:s)?)(?:(?![a-zA-Z]))|failed|failure)",
             "warning": "(?:(?:(?i)warn)|not responding|init: cannot execute)"
         },
+        "opid-field": "log_syslog_tag",
+        "multiline": true,
+        "module-field": "log_procname",
         "value": {
+            "log_pri": {
+                "kind": "integer",
+                "foreign-key": true,
+                "description": "The priority level of the message"
+            },
+            "syslog_version": {
+                "kind": "integer",
+                "foreign-key": true,
+                "description": "The version of the syslog format used for this message"
+            },
             "log_hostname": {
                 "kind": "string",
-                "identifier": true
+                "collate": "ipaddress",
+                "identifier": true,
+                "description": "The name of the host that generated the message"
             },
             "log_procname": {
                 "kind": "string",
-                "identifier": true
+                "identifier": true,
+                "description": "The name of the process that generated the message"
             },
             "log_pid": {
                 "kind": "string",
+                "identifier": true,
+                "action-list": [
+                    "dump_pid"
+                ],
+                "description": "The ID of the process that generated the message"
+            },
+            "log_syslog_tag": {
+                "kind": "string",
+                "identifier": true,
+                "description": "The combination of the procname and pid"
+            },
+            "log_msgid": {
+                "kind": "string",
                 "identifier": true
+            },
+            "log_struct": {
+                "kind": "struct"
+            }
+        },
+        "action": {
+            "dump_pid": {
+                "label": "Show Process Info",
+                "capture-output": true,
+                "cmd": [
+                    "dump-pid.sh"
+                ]
             }
         },
         "sample": [
@@ -130,6 +174,24 @@ The schema for these format files is inspired by lnav and aims for compatibility
             },
             {
                 "line": "Jun 27 01:47:20 Tims-MacBook-Air.local configd[17]: network changed: v4(en0-:192.168.1.8) DNS- Proxy- SMB"
+            },
+            {
+                "line": "Jun 20 17:26:13 ip-10-188-149-5 [CLOUDINIT] util.py[DEBUG]: Restoring selinux mode for /var/lib/cloud (recursive=False)"
+            },
+            {
+                "line": "<46>1 2017-04-27T07:50:47.381967+02:00 logserver rsyslogd - - [origin software=\"rsyslogd\" swVersion=\"8.4.2\" x-pid=\"900\" x-info=\"http://www.rsyslog.com\"] start"
+            },
+            {
+                "line": "<30>1 2017-04-27T07:59:12+02:00 nextcloud dhclient - - -  DHCPREQUEST on eth0 to 192.168.1.1 port 67"
+            },
+            {
+                "line": "<78>1 2017-04-27T08:09:01+02:00 nextcloud CRON 1472 - -  (root) CMD (  [ -x /usr/lib/php5/sessionclean ] && /usr/lib/php5/sessionclean)"
+            },
+            {
+                "line": "Aug  1 00:00:03 Tim-Stacks-iMac com.apple.xpc.launchd[1] (com.apple.mdworker.shared.0C000000-0700-0000-0000-000000000000[50989]): Service exited due to SIGKILL | sent by mds[198]"
+            },
+            {
+                "line": "Jan  4 10:23:26 Tims-MacBook-Air Setup Assistant[1173]: Creating connection"
             }
         ]
     }
@@ -139,7 +201,7 @@ The schema for these format files is inspired by lnav and aims for compatibility
 You can add your own custom format definitions to the formats directory to extend WTL's capabilities.
 
 ## 🚀 Getting Started
-###Installation
+### Installation
 (Pre-compiled binaries will be available for common platforms here once released.)
 
 You can also install from source if you have Rust installed (see Building from Source).
@@ -184,9 +246,10 @@ wtl my_custom_app.log -o my_custom_app.parquet --format custom_format_name
 
 #### Options:
 
-`-o, --output <path>`: Specify the output Parquet file or directory.
-`--format <name>`: Force the use of a specific log format definition.
-`--formats-dir <path>`: Specify a custom directory for log format definitions. Defaults to a built-in or user-config location.
-`-v, --verbose`: Enable verbose output.
-`--debug`: Enable debug output (even more verbose).
+* `-o, --output <path>`: Specify the output Parquet file or directory.
+* `--format <name>`: Force the use of a specific log format definition.
+
+* `--formats-dir <path>`: Specify a custom directory for log format definitions. Defaults to a built-in or user-config location.
+* `-v, --verbose`: Enable verbose output.
+* `--debug`: Enable debug output (even more verbose).
 (More options to be added)
